@@ -1,0 +1,667 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ravan Dahan - The Burning Arrow</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: white;
+  background: #10080a;
+  overflow-x: hidden;
+}
+
+.game {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 90%, #7e290c 0%, transparent 48%),
+    linear-gradient(#100b24 0%, #42202c 55%, #150b0b 100%);
+}
+
+header {
+  text-align: center;
+  padding: 24px 12px 8px;
+  position: relative;
+  z-index: 2;
+}
+
+header h1 {
+  color: #ffbd38;
+  font-size: clamp(27px, 5vw, 48px);
+  text-shadow: 0 0 20px #ff5100;
+}
+
+header p {
+  margin-top: 10px;
+  color: #ffe2b0;
+  font-size: 14px;
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: .6;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, white 50%, transparent),
+    radial-gradient(2px 2px at 75% 13%, white 50%, transparent),
+    radial-gradient(2px 2px at 42% 30%, white 50%, transparent),
+    radial-gradient(2px 2px at 90% 40%, white 50%, transparent),
+    radial-gradient(2px 2px at 20% 45%, white 50%, transparent);
+}
+
+.scene {
+  min-height: 430px;
+  height: 56vh;
+  max-height: 570px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-evenly;
+  padding: 0 3% 22px;
+  isolation: isolate;
+}
+
+.ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(#672a17, #1b0d0a);
+  border-top: 2px solid #bd5424;
+  z-index: -1;
+}
+
+.target {
+  width: 30%;
+  max-width: 310px;
+  height: 90%;
+  max-height: 490px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  transition: border-color .2s, filter .3s;
+}
+
+.target.selected {
+  border-color: #ffbc40;
+  background: #ffad1810;
+  box-shadow: 0 0 22px #ff7b1530;
+}
+
+.target:focus-visible {
+  outline: 3px solid #ffdc72;
+}
+
+.name {
+  z-index: 2;
+  font-weight: 900;
+  color: #ffd078;
+  font-size: clamp(12px, 2vw, 19px);
+  text-shadow: 0 2px 5px black;
+  margin-bottom: 8px;
+}
+
+.demon {
+  width: 100%;
+  height: 84%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  transform-origin: bottom center;
+}
+
+.heads {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  gap: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.head {
+  width: 24%;
+  aspect-ratio: .75;
+  border: 2px solid #ffc24e;
+  border-radius: 45% 45% 35% 35%;
+  background: linear-gradient(130deg, #ffce78, #a52c13 65%, #44100e);
+  box-shadow: inset 0 -5px 0 #5a100c;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.head::before {
+  content: "♛";
+  position: absolute;
+  top: -38%;
+  font-size: clamp(15px, 3vw, 32px);
+  color: #ffd54d;
+  text-shadow: 0 0 5px #ff7300;
+}
+
+.eye-row {
+  color: #ffefb5;
+  font-size: clamp(7px, 1.5vw, 16px);
+  letter-spacing: 1px;
+}
+
+.moustache {
+  font-size: clamp(9px, 2vw, 21px);
+  line-height: 1;
+  color: #210b08;
+}
+
+.ravan .head {
+  width: 11%;
+  min-width: 16px;
+  border-radius: 45% 45% 32% 32%;
+}
+
+.ravan .heads {
+  width: 100%;
+}
+
+.ravan .head::before {
+  font-size: clamp(10px, 2vw, 20px);
+  top: -36%;
+}
+
+.body {
+  width: 54%;
+  height: 37%;
+  min-height: 80px;
+  position: relative;
+  margin-top: 5px;
+  background:
+    repeating-linear-gradient(90deg,
+      transparent 0 17%,
+      #ffcd51 18% 20%,
+      transparent 21% 38%),
+    linear-gradient(90deg, #79180e, #f3a328 45%, #8d1b0a);
+  border: 3px solid #ffc34e;
+  border-radius: 22px 22px 9px 9px;
+  box-shadow: inset 0 0 15px #4b0909;
+}
+
+.body::before {
+  content: "✺";
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(20px, 3vw, 34px);
+  color: #fff0a0;
+}
+
+.arms {
+  position: absolute;
+  width: 112%;
+  top: 20%;
+  height: 12px;
+  background: #c44c20;
+  border: 2px solid #ffbf4c;
+  transform: rotate(-8deg);
+}
+
+.arms::before,
+.arms::after {
+  content: "";
+  position: absolute;
+  width: 19px;
+  height: 19px;
+  border: 3px solid #ffd16b;
+  border-radius: 50%;
+  background: #9e260f;
+  top: -6px;
+}
+
+.arms::before { left: -7px; }
+.arms::after { right: -7px; }
+
+.legs {
+  display: flex;
+  justify-content: center;
+  gap: 12%;
+  width: 48%;
+  height: 25%;
+}
+
+.legs span {
+  width: 35%;
+  background: linear-gradient(90deg, #9e290e, #f4a12b, #7c170d);
+  border: 2px solid #ffc64d;
+  border-radius: 0 0 8px 8px;
+}
+
+.weapon {
+  position: absolute;
+  right: -8%;
+  top: 30%;
+  font-size: clamp(22px, 4vw, 40px);
+  transform: rotate(-35deg);
+  z-index: 3;
+}
+
+.target:not(.ravan-target) .heads {
+  width: 64%;
+}
+
+.target:not(.ravan-target) .head {
+  width: 75%;
+  aspect-ratio: .8;
+}
+
+.target:not(.ravan-target) .body {
+  height: 42%;
+  width: 61%;
+}
+
+.target.burning .demon {
+  animation: shake .15s infinite alternate;
+}
+
+.target.burning .body,
+.target.burning .head {
+  animation: charBurn 1.8s forwards;
+}
+
+.target.burning .heads {
+  animation: charBurn 1.8s forwards;
+}
+
+.target.burning .fire {
+  display: block;
+}
+
+.fire {
+  display: none;
+  position: absolute;
+  inset: 5% 0 0;
+  z-index: 4;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 50% 80%, #fff4a0 0%, #ffb21b 12%, #f33b08 34%, #f33b0800 68%);
+  mix-blend-mode: screen;
+  animation: flames .22s infinite alternate;
+}
+
+.fire::before,
+.fire::after {
+  content: "🔥  🔥  🔥";
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-size: clamp(22px, 4vw, 43px);
+  filter: drop-shadow(0 0 8px orange);
+}
+
+.fire::after {
+  content: "🔥 🔥";
+  bottom: 48%;
+  font-size: clamp(15px, 3vw, 29px);
+}
+
+.target.burned {
+  filter: grayscale(1) brightness(.25);
+  opacity: .5;
+  cursor: default;
+}
+
+.target.burned .fire {
+  display: none;
+}
+
+@keyframes flames {
+  from { opacity: .65; transform: scaleX(.94); }
+  to { opacity: 1; transform: scaleX(1.06); }
+}
+
+@keyframes charBurn {
+  0% { filter: brightness(1); }
+  30% { filter: brightness(1.8) sepia(1); }
+  100% { filter: brightness(.15) grayscale(1); }
+}
+
+@keyframes shake {
+  from { transform: rotate(-1deg); }
+  to { transform: rotate(1deg); }
+}
+
+.controls {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 18px 12px 32px;
+  background: linear-gradient(transparent, #100808 25%);
+}
+
+#status {
+  min-height: 24px;
+  color: #ffdb91;
+  margin-bottom: 14px;
+  font-weight: bold;
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd65a, #ff721b);
+  color: #351007;
+  padding: 13px 25px;
+  font-weight: 900;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 0 20px #ff710955;
+  margin: 5px;
+  transition: transform .15s;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+#reset {
+  background: #30232b;
+  color: white;
+  border: 1px solid #81536a;
+}
+
+.arrow {
+  position: absolute;
+  z-index: 10;
+  width: 65px;
+  height: 5px;
+  border-radius: 4px;
+  background: linear-gradient(white, #ffce62);
+  box-shadow: 0 0 12px #ff8a18;
+  transform-origin: center;
+  display: none;
+  pointer-events: none;
+}
+
+.arrow::after {
+  content: "";
+  position: absolute;
+  right: -10px;
+  top: -5px;
+  border-left: 15px solid #fff0a5;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+@media (max-width: 500px) {
+  .scene {
+    min-height: 360px;
+    height: 48vh;
+    padding-left: 1%;
+    padding-right: 1%;
+  }
+
+  .target {
+    width: 33%;
+  }
+
+  .body {
+    min-height: 65px;
+  }
+
+  .name {
+    font-size: 11px;
+  }
+
+  .ravan .head {
+    min-width: 10px;
+    border-width: 1px;
+  }
+
+  .controls {
+    padding-top: 10px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="game">
+  <div class="stars"></div>
+
+  <header>
+    <h1>🔥 RAVAN DAHAN 🔥</h1>
+    <p>Select your enemy. Aim your arrow. Burn the evil!</p>
+  </header>
+
+  <main class="scene" id="scene">
+    <div class="ground"></div>
+    <div class="arrow" id="arrow"></div>
+
+    <div class="target" data-name="Meghnath" tabindex="0" role="button"
+         aria-label="Select Meghnath">
+      <div class="name">MEGHNATH</div>
+      <div class="demon">
+        <div class="heads">
+          <div class="head">
+            <div class="eye-row">● ●</div>
+            <div class="moustache">〰</div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="arms"></div>
+          <div class="weapon">🔱</div>
+        </div>
+        <div class="legs"><span></span><span></span></div>
+      </div>
+      <div class="fire"></div>
+    </div>
+
+    <div class="target ravan-target" data-name="Ravan"
+         tabindex="0" role="button" aria-label="Select Ravan">
+      <div class="name">👑 RAVAN 👑</div>
+      <div class="demon ravan">
+        <div class="heads">
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+          <div class="head"><div class="eye-row">● ●</div><div class="moustache">〰</div></div>
+        </div>
+        <div class="body">
+          <div class="arms"></div>
+          <div class="weapon">⚔️</div>
+        </div>
+        <div class="legs"><span></span><span></span></div>
+      </div>
+      <div class="fire"></div>
+    </div>
+
+    <div class="target" data-name="Kumbhkaran" tabindex="0" role="button"
+         aria-label="Select Kumbhkaran">
+      <div class="name">KUMBHKARAN</div>
+      <div class="demon">
+        <div class="heads">
+          <div class="head">
+            <div class="eye-row">● ●</div>
+            <div class="moustache">〰</div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="arms"></div>
+          <div class="weapon">🪓</div>
+        </div>
+        <div class="legs"><span></span><span></span></div>
+      </div>
+      <div class="fire"></div>
+    </div>
+  </main>
+
+  <section class="controls">
+    <p id="status" aria-live="polite">Choose a character to begin!</p>
+    <button id="shoot">🏹 SHOOT ARROW</button>
+    <button id="reset">↻ RESTART GAME</button>
+  </section>
+</div>
+
+<script>
+const scene = document.getElementById("scene");
+const arrow = document.getElementById("arrow");
+const shootBtn = document.getElementById("shoot");
+const resetBtn = document.getElementById("reset");
+const statusText = document.getElementById("status");
+const targets = [...document.querySelectorAll(".target")];
+
+let selected = null;
+let busy = false;
+let burnedCount = 0;
+
+function selectTarget(target) {
+  if (busy || target.classList.contains("burned")) return;
+
+  selected = target;
+
+  targets.forEach(item => item.classList.remove("selected"));
+  selected.classList.add("selected");
+
+  statusText.textContent =
+    `${selected.dataset.name} selected! Fire your arrow!`;
+
+  shootBtn.disabled = false;
+}
+
+targets.forEach(target => {
+  target.addEventListener("click", () => selectTarget(target));
+
+  target.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      selectTarget(target);
+    }
+  });
+});
+
+shootBtn.addEventListener("click", () => {
+  if (!selected || busy || selected.classList.contains("burned")) {
+    statusText.textContent = "Select a character first!";
+    return;
+  }
+
+  busy = true;
+  shootBtn.disabled = true;
+
+  const sceneRect = scene.getBoundingClientRect();
+  const targetRect = selected.getBoundingClientRect();
+
+  const startX = sceneRect.width / 2 - 32;
+  const startY = sceneRect.height - 30;
+
+  const endX = targetRect.left - sceneRect.left + targetRect.width / 2;
+  const endY = targetRect.top - sceneRect.top + targetRect.height * 0.45;
+
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+  arrow.style.transition = "none";
+  arrow.style.display = "block";
+  arrow.style.left = `${startX}px`;
+  arrow.style.top = `${startY}px`;
+  arrow.style.transform = `rotate(${angle}deg)`;
+
+  // Force the browser to apply the starting position.
+  void arrow.offsetWidth;
+
+  arrow.style.transition = "left .55s ease-in, top .55s ease-in";
+  arrow.style.left = `${endX}px`;
+  arrow.style.top = `${endY}px`;
+
+  const hitTarget = selected;
+
+  setTimeout(() => {
+    arrow.style.display = "none";
+
+    if (!hitTarget.classList.contains("burned")) {
+      hitTarget.classList.remove("selected");
+      hitTarget.classList.add("burning");
+
+      statusText.textContent =
+        `🔥 Direct hit! ${hitTarget.dataset.name} is burning!`;
+
+      setTimeout(() => {
+        hitTarget.classList.remove("burning");
+        hitTarget.classList.add("burned");
+        burnedCount++;
+
+        if (burnedCount === targets.length) {
+          statusText.textContent =
+            "🏆 VICTORY! All three have been defeated!";
+        } else {
+          statusText.textContent =
+            `${hitTarget.dataset.name} defeated! Select your next target.`;
+        }
+
+        selected = null;
+        busy = false;
+        shootBtn.disabled = false;
+
+        if (burnedCount === targets.length) {
+          shootBtn.disabled = true;
+        }
+      }, 1800);
+    } else {
+      busy = false;
+      shootBtn.disabled = false;
+    }
+  }, 570);
+});
+
+resetBtn.addEventListener("click", () => {
+  targets.forEach(target => {
+    target.classList.remove("selected", "burning", "burned");
+  });
+
+  selected = null;
+  busy = false;
+  burnedCount = 0;
+
+  arrow.style.display = "none";
+  shootBtn.disabled = false;
+  statusText.textContent = "Choose a character to begin!";
+});
+</script>
+</body>
+</html>
